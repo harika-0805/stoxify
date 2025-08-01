@@ -4,7 +4,10 @@ const { setRoutes } = require('./routes/index');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-//add cors
+//add 
+const cors = require('cors');
+app.use(cors());
+
 
 app.use(express.json());
 
