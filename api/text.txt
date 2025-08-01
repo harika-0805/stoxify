@@ -1,0 +1,120 @@
+create database express1;
+use express1;
+CREATE TABLE user (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(50) UNIQUE NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  email VARCHAR(100) UNIQUE NOT NULL,
+  total_balance DECIMAL(10,2) DEFAULT 0.00,
+  total_profit_loss DECIMAL(10,2) DEFAULT 0.00,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE stockdata (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(50) NOT NULL,
+  symbol VARCHAR(10) UNIQUE NOT NULL,
+  price DECIMAL(10,2) NOT NULL,
+  prev_close DECIMAL(10,2),
+  day_high DECIMAL(10,2),
+  day_low DECIMAL(10,2),
+  category VARCHAR(30),
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE transaction (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT,
+  stock_id INT,
+  type ENUM('buy', 'sell') NOT NULL,
+  qty INT NOT NULL,
+  price_per_stock DECIMAL(10,2) NOT NULL,
+  total_amount DECIMAL(10,2) NOT NULL,
+  datetime DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES user(id),
+  FOREIGN KEY (stock_id) REFERENCES stockdata(id)
+);
+
+CREATE TABLE watchlist (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT,
+  stock_id INT,
+  added_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES user(id),
+  FOREIGN KEY (stock_id) REFERENCES stockdata(id)
+);
+
+INSERT INTO user (username, password, email, total_balance, total_profit_loss)
+VALUES ('demo_user', 'hashed_password', 'demo@example.com', 100000.00, 2500.00);
+
+INSERT INTO stockdata (name, symbol, price, prev_close, day_high, day_low, category)
+VALUES 
+('Apple Inc.', 'AAPL', 193.45, 192.10, 195.30, 191.00, 'Tech'),
+('Microsoft Corp.', 'MSFT', 318.60, 316.50, 320.00, 314.90, 'Tech'),
+('Tesla Inc.', 'TSLA', 243.50, 240.70, 248.10, 239.00, 'Automotive'),
+('Amazon.com Inc.', 'AMZN', 134.75, 132.50, 137.00, 130.80, 'E-Commerce'),
+('Alphabet Inc.', 'GOOGL', 122.20, 121.90, 124.00, 120.50, 'Tech'),
+('Meta Platforms', 'META', 287.90, 285.10, 290.00, 282.00, 'Social'),
+('NVIDIA Corp.', 'NVDA', 428.60, 423.40, 430.90, 420.00, 'Hardware'),
+('Intel Corp.', 'INTC', 35.25, 34.80, 36.00, 34.20, 'Hardware'),
+('Netflix Inc.', 'NFLX', 410.30, 405.00, 415.20, 400.10, 'Entertainment'),
+('Adobe Inc.', 'ADBE', 503.70, 499.20, 510.00, 495.00, 'Software'),
+('PayPal Holdings', 'PYPL', 70.10, 69.80, 72.00, 68.90, 'Fintech'),
+('Salesforce Inc.', 'CRM', 218.40, 215.30, 220.80, 212.70, 'Software'),
+('Visa Inc.', 'V', 230.10, 229.50, 233.00, 227.80, 'Finance'),
+('Mastercard Inc.', 'MA', 395.80, 393.00, 400.00, 390.50, 'Finance'),
+('Walmart Inc.', 'WMT', 159.90, 158.10, 161.00, 156.80, 'Retail'),
+('Coca-Cola Co.', 'KO', 59.70, 59.50, 60.20, 58.90, 'Beverage'),
+('PepsiCo Inc.', 'PEP', 182.10, 181.00, 184.00, 179.50, 'Beverage'),
+('McDonald\'s Corp.', 'MCD', 289.30, 288.00, 291.00, 285.70, 'Food'),
+('Berkshire Hathaway', 'BRK.B', 349.60, 347.80, 352.00, 345.00, 'Holding'),
+('Toyota Motor Corp.', 'TM', 162.40, 161.00, 165.00, 159.90, 'Automotive');
+
+
+INSERT INTO transaction (user_id, stock_id, type, qty, price_per_stock, total_amount)
+VALUES 
+(1, 1, 'buy', 10, 190.00, 1900.00),
+(1, 2, 'buy', 5, 320.00, 1600.00),
+(1, 3, 'buy', 8, 240.00, 1920.00),
+(1, 4, 'buy', 12, 130.00, 1560.00),
+(1, 5, 'buy', 6, 120.00, 720.00),
+(1, 6, 'buy', 4, 280.00, 1120.00),
+(1, 7, 'sell', 3, 430.00, 1290.00),
+(1, 8, 'buy', 15, 35.00, 525.00),
+(1, 9, 'buy', 7, 400.00, 2800.00),
+(1, 10, 'sell', 5, 500.00, 2500.00),
+(1, 11, 'buy', 10, 68.00, 680.00),
+(1, 12, 'buy', 3, 210.00, 630.00),
+(1, 13, 'buy', 6, 225.00, 1350.00),
+(1, 14, 'sell', 2, 390.00, 780.00),
+(1, 15, 'buy', 9, 155.00, 1395.00),
+(1, 16, 'buy', 11, 58.00, 638.00),
+(1, 17, 'buy', 6, 180.00, 1080.00),
+(1, 18, 'sell', 4, 290.00, 1160.00),
+(1, 19, 'buy', 5, 345.00, 1725.00),
+(1, 20, 'buy', 10, 160.00, 1600.00);
+
+
+INSERT INTO watchlist (user_id, stock_id)
+VALUES
+(1, 1),
+(1, 2),
+(1, 3),
+(1, 4),
+(1, 5),
+(1, 6),
+(1, 7),
+(1, 8),
+(1, 9),
+(1, 10),
+(1, 11),
+(1, 12),
+(1, 13),
+(1, 14),
+(1, 15),
+(1, 16),
+(1, 17),
+(1, 18),
+(1, 19),
+(1, 20);
+

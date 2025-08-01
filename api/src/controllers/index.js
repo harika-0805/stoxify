@@ -1,192 +1,98 @@
-class IndexController {
-    constructor(db) {
-        this.db = db;
-    }
 
-    // Users
-    getAllUsers = async (req, res) => {
-        try {
-            const [rows] = await this.db.query('SELECT * FROM user');
-            res.json(rows);
-        } catch (err) {
-            console.error('Error fetching users:', err);
-            res.status(500).json({ error: 'Error fetching users' });
-        }
-    };
-
-    getUserById = async (req, res) => {
-        const { id } = req.params;
-        try {
-            const [rows] = await this.db.query('SELECT * FROM user WHERE id = ?', [id]);
-            if (rows.length === 0) return res.status(404).json({ error: 'User not found' });
-            res.json(rows[0]);
-        } catch (err) {
-            console.error('Error fetching user:', err);
-            res.status(500).json({ error: 'Error fetching user' });
-        }
-    };
-
-    createUser = async (req, res) => {
-        const { name, email } = req.body;
-        try {
-            const [result] = await this.db.query('INSERT INTO user (name, email) VALUES (?, ?)', [name, email]);
-            res.status(201).json({ id: result.insertId, name, email });
-        } catch (err) {
-            console.error('Error creating user:', err);
-            res.status(500).json({ error: 'Error creating user' });
-        }
-    };
-
-    updateUser = async (req, res) => {
-        const { id } = req.params;
-        const { name, email } = req.body;
-        try {
-            const [result] = await this.db.query('UPDATE user SET name = ?, email = ? WHERE id = ?', [name, email, id]);
-            if (result.affectedRows === 0) return res.status(404).json({ error: 'User not found' });
-            res.json({ id, name, email });
-        } catch (err) {
-            console.error('Error updating user:', err);
-            res.status(500).json({ error: 'Error updating user' });
-        }
-    };
-
-    deleteUser = async (req, res) => {
-        const { id } = req.params;
-        try {
-            const [result] = await this.db.query('DELETE FROM user WHERE id = ?', [id]);
-            if (result.affectedRows === 0) return res.status(404).json({ error: 'User not found' });
-            res.json({ message: 'User deleted successfully' });
-        } catch (err) {
-            console.error('Error deleting user:', err);
-            res.status(500).json({ error: 'Error deleting user' });
-        }
-    };
-
-    // Stocks
-    getAllStocks = async (req, res) => {
-        try {
-            const [rows] = await this.db.query('SELECT * FROM stockdata');
-            res.json(rows);
-        } catch (err) {
-            console.error('Error fetching stocks:', err);
-            res.status(500).json({ error: 'Error fetching stocks' });
-        }
-    };
-
-    getStockById = async (req, res) => {
-        const { id } = req.params;
-        try {
-            const [rows] = await this.db.query('SELECT * FROM stockdata WHERE id = ?', [id]);
-            if (rows.length === 0) return res.status(404).json({ error: 'Stock not found' });
-            res.json(rows[0]);
-        } catch (err) {
-            console.error('Error fetching stock:', err);
-            res.status(500).json({ error: 'Error fetching stock' });
-        }
-    };
-
-    createStock = async (req, res) => {
-        const { name, price } = req.body;
-        try {
-            const [result] = await this.db.query('INSERT INTO stockdata (name, price) VALUES (?, ?)', [name, price]);
-            res.status(201).json({ id: result.insertId, name, price });
-        } catch (err) {
-            console.error('Error creating stock:', err);
-            res.status(500).json({ error: 'Error creating stock' });
-        }
-    };
-
-    updateStock = async (req, res) => {
-        const { id } = req.params;
-        const { name, price } = req.body;
-        try {
-            const [result] = await this.db.query('UPDATE stockdata SET name = ?, price = ? WHERE id = ?', [name, price, id]);
-            if (result.affectedRows === 0) return res.status(404).json({ error: 'Stock not found' });
-            res.json({ id, name, price });
-        } catch (err) {
-            console.error('Error updating stock:', err);
-            res.status(500).json({ error: 'Error updating stock' });
-        }
-    };
-
-    deleteStock = async (req, res) => {
-        const { id } = req.params;
-        try {
-            const [result] = await this.db.query('DELETE FROM stockdata WHERE id = ?', [id]);
-            if (result.affectedRows === 0) return res.status(404).json({ error: 'Stock not found' });
-            res.json({ message: 'Stock deleted successfully' });
-        } catch (err) {
-            console.error('Error deleting stock:', err);
-            res.status(500).json({ error: 'Error deleting stock' });
-        }
-    };
-
-    // Transactions
-    getAllTransactions = async (req, res) => {
-        try {
-            const [rows] = await this.db.query('SELECT * FROM transactions');
-            res.json(rows);
-        } catch (err) {
-            console.error('Error fetching transactions:', err);
-            res.status(500).json({ error: 'Error fetching transactions' });
-        }
-    };
-
-    getTransactionById = async (req, res) => {
-        const { id } = req.params;
-        try {
-            const [rows] = await this.db.query('SELECT * FROM transactions WHERE id = ?', [id]);
-            if (rows.length === 0) return res.status(404).json({ error: 'Transaction not found' });
-            res.json(rows[0]);
-        } catch (err) {
-            console.error('Error fetching transaction:', err);
-            res.status(500).json({ error: 'Error fetching transaction' });
-        }
-    };
-
-    createTransaction = async (req, res) => {
-        const { stock_id, user_id, quantity, price } = req.body;
-        console.log('REQ BODY:', req.body); // to check what Postman is sending
-
-        try {
-            const [result] = await this.db.query(
-                'INSERT INTO transactions (stock_id, user_id, quantity, price) VALUES (?, ?, ?, ?)',
-                [stock_id, user_id, quantity, price]
-            );
-            res.status(201).json({ id: result.insertId, stock_id, user_id, quantity, price });
-        } catch (err) {
-            console.error('Error creating transaction:', err);
-            res.status(500).json({ error: 'Error creating transaction' });
-        }
-    };
-
-    updateTransaction = async (req, res) => {
-        const { id } = req.params;
-        const { stock_id, user_id, quantity, price } = req.body;
-        try {
-            const [result] = await this.db.query(
-                'UPDATE transactions SET stock_id = ?, user_id = ?, quantity = ?, price = ? WHERE id = ?',
-                [stock_id, user_id, quantity, price, id]
-            );
-            if (result.affectedRows === 0) return res.status(404).json({ error: 'Transaction not found' });
-            res.json({ id, stock_id, user_id, quantity, price });
-        } catch (err) {
-            console.error('Error updating transaction:', err);
-            res.status(500).json({ error: 'Error updating transaction' });
-        }
-    };
-
-    deleteTransaction = async (req, res) => {
-        const { id } = req.params;
-        try {
-            const [result] = await this.db.query('DELETE FROM transactions WHERE id = ?', [id]);
-            if (result.affectedRows === 0) return res.status(404).json({ error: 'Transaction not found' });
-            res.json({ message: 'Transaction deleted successfully' });
-        } catch (err) {
-            console.error('Error deleting transaction:', err);
-            res.status(500).json({ error: 'Error deleting transaction' });
-        }
-    };
-}
-
-module.exports = IndexController;
+// src/controllers/index.js
+exports.setRoutes = (app, db) => {
+    app.get('/api/stocks', async (req, res) => {
+      try {
+        const [rows] = await db.query('SELECT * FROM stockdata');
+        res.json(rows);
+      } catch (err) {
+        res.status(500).json({ error: err.message });
+      }
+    });
+  
+    app.post('/api/buy', async (req, res) => {
+      const { user_id, stock_id, qty } = req.body;
+      try {
+        const [stockRows] = await db.query('SELECT price FROM stockdata WHERE id = ?', [stock_id]);
+        if (stockRows.length === 0) return res.status(404).json({ error: 'Stock not found' });
+  
+        const price = stockRows[0].price;
+        const total_amount = price * qty;
+  
+        await db.query(
+          'INSERT INTO transaction (user_id, stock_id, type, qty, price_per_stock, total_amount) VALUES (?, ?, "buy", ?, ?, ?)',
+          [user_id, stock_id, qty, price, total_amount]
+        );
+  
+        res.json({ message: 'Stock bought successfully' });
+      } catch (err) {
+        res.status(500).json({ error: err.message });
+      }
+    });
+  
+    app.post('/api/sell', async (req, res) => {
+      const { user_id, stock_id, qty } = req.body;
+      try {
+        const [stockRows] = await db.query('SELECT price FROM stockdata WHERE id = ?', [stock_id]);
+        if (stockRows.length === 0) return res.status(404).json({ error: 'Stock not found' });
+  
+        const price = stockRows[0].price;
+        const total_amount = price * qty;
+  
+        await db.query(
+          'INSERT INTO transaction (user_id, stock_id, type, qty, price_per_stock, total_amount) VALUES (?, ?, "sell", ?, ?, ?)',
+          [user_id, stock_id, qty, price, total_amount]
+        );
+  
+        res.json({ message: 'Stock sold successfully' });
+      } catch (err) {
+        res.status(500).json({ error: err.message });
+      }
+    });
+  
+    app.get('/api/transactions/:user_id', async (req, res) => {
+      const { user_id } = req.params;
+      try {
+        const [rows] = await db.query('SELECT * FROM transaction WHERE user_id = ?', [user_id]);
+        res.json(rows);
+      } catch (err) {
+        res.status(500).json({ error: err.message });
+      }
+    });
+  
+    app.get('/api/watchlist/:user_id', async (req, res) => {
+      const { user_id } = req.params;
+      try {
+        const [rows] = await db.query(
+          'SELECT s.* FROM stockdata s JOIN watchlist w ON s.id = w.stock_id WHERE w.user_id = ?',
+          [user_id]
+        );
+        res.json(rows);
+      } catch (err) {
+        res.status(500).json({ error: err.message });
+      }
+    });
+  
+    app.post('/api/watchlist/add', async (req, res) => {
+      const { user_id, stock_id } = req.body;
+      console.log(user_id, stock_id, "lalalalalal");
+      
+      try {
+        await db.query('INSERT INTO watchlist (user_id, stock_id) VALUES (?, ?)', [user_id, stock_id]);
+        res.json({ message: 'Added to watchlist' });
+      } catch (err) {
+        res.status(500).json({ error: err.message });
+      }
+    });
+  
+    app.post('/api/watchlist/remove', async (req, res) => {
+      const { user_id, stock_id } = req.body;
+      try {
+        await db.query('DELETE FROM watchlist WHERE user_id = ? AND stock_id = ?', [user_id, stock_id]);
+        res.json({ message: 'Removed from watchlist' });
+      } catch (err) {
+        res.status(500).json({ error: err.message });
+      }
+    });
+  };
+  

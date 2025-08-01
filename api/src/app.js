@@ -4,6 +4,7 @@ const { setRoutes } = require('./routes/index');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+//add cors
 
 app.use(express.json());
 
