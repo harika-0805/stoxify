@@ -5,7 +5,7 @@ const connectToDatabase = async () => {
         host: 'localhost',  
         user: 'root',
         password: 'n3u3da!',
-        database: 'mybank' 
+        database: 'express' 
     }); 
 return connection;
 };      

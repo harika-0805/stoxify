@@ -1,30 +1,25 @@
 const express = require('express');
-const {connectToDatabase} = require('./config/database');
-const cors =  require ('cors');
-const setRoutes = require('./routes/index');
+const connectToDatabase = require('./config/database');
+const { setRoutes } = require('./routes/index');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-// 
-// app.use(cors());
-
+const PORT = process.env.PORT || 3001;
 
 app.use(express.json());
 
 connectToDatabase()
-    .then(()=>{
+    .then((db) => {
         console.log('Connected to the database');
-        // Set up routes
-        setRoutes(app);
-        
-        // Start server
+        setRoutes(app, db);
+
         app.listen(PORT, () => {
             console.log(`Server is running on port ${PORT}`);
         });
-
     })
     .catch(err => {
         console.error('Database connection failed:', err);
     });
 
+
+    ///changessss yooo
     

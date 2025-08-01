@@ -1,32 +1,33 @@
-const {Router} = require('express');
-const IndexController = require('../cotrollers');
-const router = Router();
-const IndexController = new IndexController();
+const IndexController = require('../controllers/index');
 
-function setRoutes(app) {
+function setRoutes(app, db) {
+    const controller = new IndexController(db);
 
-    app.use('/api/items', router);
-    // GET all users
-    app.get('/users', IndexController.getAllUsers);
+    // Users
+    app.get('/users', controller.getAllUsers);
+    app.get('/users/:id', controller.getUserById);
+    app.post('/users', controller.createUser);
+    app.put('/users/:id', controller.updateUser);
+    app.delete('/users/:id', controller.deleteUser);
 
-    // GET all stocks
-    app.get('/stocks', IndexController.getAllStocks);
+    // Stocks
+    app.get('/stocks', controller.getAllStocks);
+    app.get('/stocks/:id', controller.getStockById);
+    app.post('/stocks', controller.createStock);
+    app.put('/stocks/:id', controller.updateStock);
+    app.delete('/stocks/:id', controller.deleteStock);
 
-    // GET all transactions
-    app.get('/transactions', IndexController.getAllTransactions);
+    // Transactions
+    app.get('/transactions', controller.getAllTransactions);
+    app.get('/transactions/:id', controller.getTransactionById);
+    app.post('/transactions', controller.createTransaction);
+    app.put('/transactions/:id', controller.updateTransaction);
+    app.delete('/transactions/:id', controller.deleteTransaction);
 
-    // Home route
+    // Default route
     app.get('/', (req, res) => {
         res.send('Hello Hare!!!!!!!!');
     });
-
-    // Insert user
-    app.post('/insert_user', IndexController.insertUser);
-
-    // Insert stock
-    app.post('/insert_stock', IndexController.insertStock);
 }
 
-
-modules.exports = {setRoutes};
-
+module.exports = { setRoutes };
