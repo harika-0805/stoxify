@@ -36,10 +36,6 @@
       margin-top: 20px;
     }
 
-    table {
-      width: 100%;
-    }
-
     .user-dropdown {
       position: absolute;
       top: 20px;
@@ -84,6 +80,15 @@
     .dropdown-menu a:hover {
       background-color: #333;
     }
+
+    .stock-card {
+      background-color: #1b2a38;
+      color: white;
+      padding: 15px;
+      margin: 10px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
   </style>
 </head>
 <body>
@@ -117,21 +122,9 @@
         <button class="btn btn-secondary" id="watchlistBtn" disabled>Watchlist</button>
         <button class="btn btn-secondary" id="ownedBtn" disabled>Owned Stocks</button>
       </div>
-      <table class="table table-dark table-hover mt-3">
-        <thead>
-          <tr>
-            <th>Company</th>
-            <th>Min</th>
-            <th>Max</th>
-            <th>Current</th>
-            <th>Watchlist</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody id="stockTable">
-          <!-- Filled by JS -->
-        </tbody>
-      </table>
+      <div class="row mt-3" id="stockTable">
+        <!-- Stock cards will be injected here -->
+      </div>
     </div>
     <div class="tab-pane fade" id="history" role="tabpanel">
       <table class="table table-striped">
@@ -171,21 +164,10 @@
   const frame1 = document.getElementById("frame1");
 
   const bgColors = [
-  '#FF6B6B',  // Soft Red
-  '#FFA94D',  // Warm Orange
-  '#FFD93D',  // Golden Yellow
-  '#6BCB77',  // Mint Green
-  '#4D96FF',  // Sky Blue
-  '#4C6EF5',  // Indigo Blue
-  '#9D4EDD',  // Violet
-  '#F06595',  // Rose Pink
-  '#F8C291',  // Peach
-  '#00B894',  // Teal Green
-  '#A29BFE',  // Soft Purple
-  '#FAB1A0'   // Light Coral
-];
+  '#FF6B6B', '#FFA94D', '#FFD93D', '#6BCB77', '#4D96FF',
+  '#4C6EF5', '#9D4EDD', '#F06595', '#F8C291', '#00B894',
+  '#A29BFE', '#FAB1A0']
 
-  // Quotes rotation
   function rotateQuotes() {
     let i = 0;
     quoteElement.textContent = quotes[0];
@@ -195,11 +177,9 @@
     }, 3000);
   }
 
-  // Background color changer
   function rotateBackground() {
     let j = 0;
     setInterval(() => {
-        // Rotate the bgColors array
         const color1 = bgColors[j % bgColors.length];
         const color2 = bgColors[(j + 1) % bgColors.length];
         frame1.style.background = `linear-gradient(to right, ${color1}, ${color2})`;
@@ -207,7 +187,6 @@
       }, 2000);
   }
 
-  // Auth UI management
   function updateAuthUI() {
     const username = sessionStorage.getItem("username");
     if (username) {
@@ -232,28 +211,25 @@
     }
   }
 
-  // Fetch stocks
   function loadStocks() {
     fetch("/api/stockdata")
       .then(res => res.json())
       .then(data => {
         stockTable.innerHTML = data.map(stock => `
-          <tr>
-            <td>${stock.company_name}</td>
-            <td>${stock.min_sprice}</td>
-            <td>${stock.max_sprice}</td>
-            <td>${stock.current_sprice}</td>
-            <td><button class="btn btn-outline-light">+</button></td>
-            <td>
-              <button class="btn btn-success">Buy</button>
-              <button class="btn btn-danger">Sell</button>
-            </td>
-          </tr>
+          <div class="col-md-4">
+            <div class="stock-card">
+              <h5>${stock.company_name}</h5>
+              <p>Min: ${stock.min_sprice} | Max: ${stock.max_sprice}</p>
+              <p>Current: ${stock.current_sprice}</p>
+              <button class="btn btn-outline-light btn-sm me-2">+</button>
+              <button class="btn btn-success btn-sm">Buy</button>
+              <button class="btn btn-danger btn-sm ms-2">Sell</button>
+            </div>
+          </div>
         `).join("");
       });
   }
 
-  // Fetch transactions
   function loadTransactions() {
     fetch("/api/transactions")
       .then(res => res.json())
@@ -270,19 +246,16 @@
       });
   }
 
-  // Toggle user dropdown
   userIcon.addEventListener("click", () => {
     userMenu.style.display = userMenu.style.display === "block" ? "none" : "block";
   });
 
-  // Hide dropdown when clicked outside
   document.addEventListener("click", (e) => {
     if (!e.target.closest(".user-dropdown")) {
       userMenu.style.display = "none";
     }
   });
 
-  // Initialize
   rotateQuotes();
   rotateBackground();
   updateAuthUI();
