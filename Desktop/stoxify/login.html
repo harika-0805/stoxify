@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>STOXIFY - Stock Interface</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f8f9fa;
+    }
+
+    .frame1 {
+      height: 200px;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transition: background-color 1s ease-in-out;
+      z-index: 1;
+      animation: fadein 1s ease-in-out infinite;
+      text-align: center;
+    }
+
+    .frame1::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image: url('/mnt/data/570fe364-80e9-4a87-a4dc-c1cb647a9ec8.png');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+      opacity: 0.08;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .app-title {
+      font-size: 40px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      z-index: 1;
+      margin-bottom: 10px;
+      text-shadow: 1px 1px 4px rgba(0,0,0,0.3);
+    }
+
+    .quote {
+      font-size: 18px;
+      font-weight: 500;
+      z-index: 1;
+      animation: textPop 3s infinite;
+    }
+
+    @keyframes textPop {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.05); opacity: 0.9; }
+    }
+
+    .frame2 {
+      padding: 20px;
+    }
+
+    .card {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      border-radius: 12px;
+    }
+
+    .table {
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .tab-content {
+      margin-top: 20px;
+    }
+
+    .user-dropdown {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    .user-summary {
+      color: white;
+      text-align: right;
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .user-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid #fff;
+      background: radial-gradient(circle at top left, #faff00, #ff9900);
+      box-shadow: 0 0 12px 3px rgba(140, 0, 255, 0.6);
+      outline: 2px solid #fff;
+      outline-offset: 2px;
+    }
+
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 60px;
+      right: 0;
+      background-color: #1e1e2f;
+      color: white;
+      border-radius: 8px;
+      padding: 10px;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+      min-width: 180px;
+    }
+
+    .dropdown-menu a {
+      display: block;
+      padding: 10px;
+      text-decoration: none;
+      color: white;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .dropdown-menu a:last-child {
+      border-bottom: none;
+    }
+
+    .dropdown-menu a:hover {
+      background-color: #333;
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+    }
+
+    .user-details-card {
+      position: absolute;
+      top: 80px;
+      right: 0;
+      background: white;
+      color: black;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      padding: 15px;
+      width: 250px;
+      display: none;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+  <div class="frame1" id="frame1">
+    <div class="app-title">STOXIFY</div>
+    <div class="quote" id="quote"></div>
+    <div class="user-dropdown">
+      <div class="user-summary">
+        <div id="welcomeName">Welcome, <strong>User</strong></div>
+        <div id="balance">Balance: ₹0</div>
+      </div>
+      <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" class="user-icon" id="userIcon">
+      <div class="dropdown-menu" id="userMenu">
+        <a href="login.html" id="loginOption">Login</a>
+        <a href="register.html">Register</a>
+        <a href="#" id="profileOption">Profile</a>
+      </div>
+      <div class="user-details-card" id="userDetails">
+        <h6><strong>User Profile</strong></h6>
+        <p><strong>Name:</strong> <span id="profileName"></span></p>
+        <p><strong>Email:</strong> <span id="profileEmail"></span></p>
+        <p><strong>Gender:</strong> <span id="profileGender"></span></p>
+        <p><strong>Address:</strong> <span id="profileAddress"></span></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="frame2">
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="stocks-tab" data-bs-toggle="tab" data-bs-target="#stocks" type="button" role="tab">Stocks</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab">Transactions</button>
+      </li>
+    </ul>
+    <div class="tab-content">
+      <div class="tab-pane fade show active" id="stocks" role="tabpanel">
+        <div class="d-flex justify-content-end gap-2 mt-2">
+          <button class="btn btn-secondary" id="watchlistBtn" disabled>Watchlist</button>
+          <button class="btn btn-secondary" id="ownedBtn" disabled>Owned Stocks</button>
+        </div>
+        <div class="card mt-3">
+          <div class="card-body table-responsive">
+            <table class="table table-dark table-hover">
+              <thead>
+                <tr>
+                  <th>Company</th>
+                  <th>Min</th>
+                  <th>Max</th>
+                  <th>Current</th>
+                  <th>Watchlist</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="stockTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="tab-pane fade" id="history" role="tabpanel">
+        <div class="card mt-3">
+          <div class="card-body table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Transaction ID</th>
+                  <th>Type</th>
+                  <th>Stock</th>
+                  <th>Qty</th>
+                  <th>Time</th>
+                </tr>
+              </thead>
+              <tbody id="transactionTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const quoteElement = document.getElementById("quote");
+    const userDetails = document.getElementById("userDetails");
+    const profileOption = document.getElementById("profileOption");
+    const userIcon = document.getElementById("userIcon");
+    const userMenu = document.getElementById("userMenu");
+    const stockTable = document.getElementById("stockTable");
+    const transactionTable = document.getElementById("transactionTable");
+
+    const quotes = [
+      "Price is what you pay. Value is what you get. – Warren Buffett",
+      "Investing is not a game, it's a plan.",
+      "Time in the market beats timing the market.",
+      "Risk comes from not knowing what you're doing."
+    ];
+
+    const bgColors = [
+      '#FF6B6B', '#FFA94D', '#FFD93D', '#6BCB77', '#4D96FF',
+      '#4C6EF5', '#9D4EDD', '#F06595', '#F8C291', '#00B894',
+      '#A29BFE', '#FAB1A0'
+    ];
+
+    function rotateQuotes() {
+      let i = 0;
+      quoteElement.textContent = quotes[0];
+      setInterval(() => {
+        quoteElement.textContent = quotes[i % quotes.length];
+        i++;
+      }, 3000);
+    }
+
+    function rotateBackground() {
+      let j = 0;
+      const frame1 = document.getElementById("frame1");
+      frame1.style.backgroundColor = bgColors[0];
+      setInterval(() => {
+        frame1.style.backgroundColor = bgColors[j % bgColors.length];
+        j++;
+      }, 2000);
+    }
+
+    userIcon.addEventListener("click", () => {
+      userMenu.style.display = userMenu.style.display === "block" ? "none" : "block";
+      userDetails.style.display = "none";
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".user-dropdown")) {
+        userMenu.style.display = "none";
+        userDetails.style.display = "none";
+      }
+    });
+
+    profileOption.addEventListener("click", () => {
+      userDetails.style.display = userDetails.style.display === "block" ? "none" : "block";
+    });
+
+    function updateUserInfo() {
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (user) {
+        document.getElementById("welcomeName").innerHTML = `Welcome, <strong>${user.username}</strong>`;
+        document.getElementById("balance").innerText = `Balance: ₹${user.balance || 0}`;
+        document.getElementById("profileName").innerText = user.username;
+        document.getElementById("profileEmail").innerText = user.email;
+        document.getElementById("profileGender").innerText = user.gender;
+        document.getElementById("profileAddress").innerText = user.address;
+      }
+    }
+
+    function loadStocks() {
+      fetch("/api/stockdata")
+        .then(res => res.json())
+        .then(data => {
+          stockTable.innerHTML = data.length ? data.map(stock => `
+            <tr>
+              <td>${stock.company_name}</td>
+              <td>${stock.min_sprice}</td>
+              <td>${stock.max_sprice}</td>
+              <td>${stock.current_sprice}</td>
+              <td><button class="btn btn-outline-light">+</button></td>
+              <td>
+                <button class="btn btn-success">Buy</button>
+                <button class="btn btn-danger">Sell</button>
+              </td>
+            </tr>
+          `).join("") : '<tr><td colspan="6" class="text-center text-muted">No stocks found</td></tr>';
+        });
+    }
+
+    function loadTransactions() {
+      fetch("/api/transactions")
+        .then(res => res.json())
+        .then(data => {
+          transactionTable.innerHTML = data.length ? data.map(tx => `
+            <tr>
+              <td>${tx.TId}</td>
+              <td>${tx.TransactionType}</td>
+              <td>${tx.Sid}</td>
+              <td>${tx.Quantity || '-'} </td>
+              <td>${tx.Time || 'NA'}</td>
+            </tr>
+          `).join("") : '<tr><td colspan="5" class="text-center text-muted">No transactions available</td></tr>';
+        });
+    }
+
+    rotateQuotes();
+    rotateBackground();
+    updateUserInfo();
+    loadStocks();
+    loadTransactions();
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
