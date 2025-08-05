@@ -10,6 +10,7 @@
             background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
             color: white;
             font-family: Arial, sans-serif;
+
         }
 
         .login-container {
@@ -95,17 +96,12 @@
 
             try {
                 // Replace this URL with your actual API endpoint
-                const response = await fetch("http://localhost:5000/api/userdata"); // GET all users
-                const users = await response.json();
+                const response = await fetch(`http://localhost:3001/api/userdata?username=${username}`); // GET user by username
+                const user = await response.json();
 
-                const matchedUser = users.find(user =>
-                    (user.username === username || user.email === username) &&
-                    user.password === password
-                );
-
-                if (matchedUser) {
+                if (user && user.password === password) {
                     sessionStorage.setItem("loggedIn", "true");
-                    sessionStorage.setItem("userId", matchedUser.id || matchedUser.Uid);
+                    sessionStorage.setItem("userId", user.id || user.Uid);
                     alert("Login successful!");
                     window.location.href = "home.html"; // redirect to main stock UI
                 } else {

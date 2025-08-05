@@ -232,17 +232,18 @@
     }
   }
 
-  // Fetch stocks
   function loadStocks() {
-    fetch("/api/stockdata")
+    console.log("Loading stocks...");
+    fetch("/api/stocks")
       .then(res => res.json())
       .then(data => {
+        console.log(data); // Confirm structure
         stockTable.innerHTML = data.map(stock => `
           <tr>
-            <td>${stock.company_name}</td>
-            <td>${stock.min_sprice}</td>
-            <td>${stock.max_sprice}</td>
-            <td>${stock.current_sprice}</td>
+            <td>${stock.name}</td>
+            <td>${stock.day_low}</td>
+            <td>${stock.day_high}</td>
+            <td>${stock.price}</td>
             <td><button class="btn btn-outline-light">+</button></td>
             <td>
               <button class="btn btn-success">Buy</button>
@@ -252,24 +253,32 @@
         `).join("");
       });
   }
+  
 
   // Fetch transactions
   function loadTransactions() {
-    fetch("/api/transactions")
+    console.log("Loading transactions...");
+    const user_id = sessionStorage.getItem("userId");
+    console.log("User ID:", user_id );
+    if (!user_id) return;
+  
+    fetch(`/api/transactions/${user_id}`)
       .then(res => res.json())
       .then(data => {
+        console.log("Fetched transactions:", data);
         transactionTable.innerHTML = data.map(tx => `
           <tr>
-            <td>${tx.TId}</td>
-            <td>${tx.TransactionType}</td>
-            <td>${tx.Sid}</td>
-            <td>${tx.Quantity || '-'}</td>
-            <td>${tx.Time || 'NA'}</td>
+        <td>${tx.TId || tx.id}</td>
+        <td>${tx.type}</td>
+        <td>${tx.stock_id}</td>
+        <td>${tx.qty || '-'}</td>
+        <td>${tx.timestamp || 'NA'}</td>
           </tr>
         `).join("");
       });
-  }
+    }
 
+  
   // Toggle user dropdown
   userIcon.addEventListener("click", () => {
     userMenu.style.display = userMenu.style.display === "block" ? "none" : "block";
